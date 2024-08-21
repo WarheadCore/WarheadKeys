@@ -1,0 +1,15 @@
+## Interface: 70300
+## Version: 2.0
+## Title: |cFFFF0000Warhead:|r Ключи
+## Author: Winfidonarleyan
+## Notes: Мифические таймеры, все дела
+## SavedVariables: WarheadKeysDB
+## OptionalDeps: Ace3
+## X-Embeds: Ace3
+
+embeds.xml
+
+Locales\Locales.xml
+
+Core.lua
+CMTimer.lua
