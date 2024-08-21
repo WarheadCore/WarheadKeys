@@ -179,6 +179,8 @@ end
 
 function WarheadKeys:PLAYER_ENTERING_WORLD()
     WarheadKeysCMTimer:ReStart()
+
+    self:FillKeysCache()
 end
 
 function WarheadKeys:CancelCMTimer()
@@ -209,14 +211,12 @@ function WarheadKeys:FillKeysCache()
         for slot = 1, numSlots do
             if (GetContainerItemID(bag, slot) == WH_ITEM_ID_KEYSTONE) then
                 local itemLink = GetContainerItemLink(bag, slot)
-                local keyName, keyLevel = self:ParseKeystoneLink(cacheItemLink)
+                local keyName, keyLevel = self:ParseKeystoneLink(itemLink)
 
                 if cacheKeyName ~= keyName or cacheKeyLevel ~= keyLevel then
                     WarheadKeysDB.KeystoneCache[SelfName] = itemLink
 
                     self:PrintMessageToChat("Найден новый ключ: "..itemLink)
-                    print(cacheItemLink)
-                    print(itemLink)
                 end
 
                 return
