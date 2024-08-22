@@ -143,7 +143,6 @@ function WarheadKeys:OnEnable()
     self:RegisterEvent("CHALLENGE_MODE_START")
     self:RegisterEvent("CHALLENGE_MODE_COMPLETED")
     self:RegisterEvent("CHALLENGE_MODE_RESET")
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("BAG_UPDATE", "FillKeysCache")
     self:RegisterEvent("CHAT_MSG_PARTY", "PrintCacheToChat")
     self:RegisterEvent("CHAT_MSG_PARTY_LEADER", "PrintCacheToChat")
@@ -203,33 +202,38 @@ end
 
 function WarheadKeys:FillKeysCache()
     local cacheItemLink = WarheadKeysDB.KeystoneCache[SelfName]
-    local cacheKeyName, cacheKeyLevel = self:ParseKeystoneLink(cacheItemLink)
 
     for bag = 0, NUM_BAG_SLOTS do
-        local numSlots = GetContainerNumSlots(bag)
+        local itemLink = self:GetKeyLink(bag)
 
-        for slot = 1, numSlots do
-            if (GetContainerItemID(bag, slot) == WH_ITEM_ID_KEYSTONE) then
-                local itemLink = GetContainerItemLink(bag, slot)
-                local keyName, keyLevel = self:ParseKeystoneLink(itemLink)
-
-                if cacheKeyName ~= keyName or cacheKeyLevel ~= keyLevel then
-                    WarheadKeysDB.KeystoneCache[SelfName] = itemLink
-
-                    self:PrintMessageToChat("Найден новый ключ: "..itemLink)
-                end
-
-                return
+        if itemLink ~= nil then
+            if itemLink ~= cacheItemLink then
+                WarheadKeysDB.KeystoneCache[SelfName] = itemLink
+                self:PrintMessageToChat("Найден новый ключ: "..itemLink)
             end
+
+            return
         end
     end
 
-    cacheItemLink = WarheadKeysDB.KeystoneCache[SelfName]
+    -- cacheItemLink = WarheadKeysDB.KeystoneCache[SelfName]
 
-    if (cacheItemLink ~= nil) then
-        print("|cFFFF0000[WH.KeysCache]:|r Найден старый ключ в кеше: "..cacheItemLink..". Удаляем его, чтобы не мешал")
-        WarheadKeysDB.KeystoneCache[SelfName] = nil
+    -- if (cacheItemLink ~= nil) then
+    --     print("|cFFFF0000[WH.KeysCache]:|r Найден старый ключ в кеше: "..cacheItemLink..". Удаляем его, чтобы не мешал")
+    --     WarheadKeysDB.KeystoneCache[SelfName] = nil
+    -- end
+end
+
+function WarheadKeys:GetKeyLink(bagSlot)
+    local numSlots = GetContainerNumSlots(bagSlot)
+
+    for slot = 1, numSlots do
+        if (GetContainerItemID(bagSlot, slot) == WH_ITEM_ID_KEYSTONE) then
+            return GetContainerItemLink(bagSlot, slot)
+        end
     end
+
+    return nil
 end
 
 function WarheadKeys:ParseKeystoneLink(itemLink)
