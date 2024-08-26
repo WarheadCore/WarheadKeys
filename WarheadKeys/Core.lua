@@ -85,30 +85,6 @@ function WarheadKeys:OnInitialize()
                 set = function(info,val) WarheadKeysDB.config.progressTooltip = val end,
                 width = "full"
             },
-            linkSlottedKey = {
-                type = "toggle",
-                name = WarheadKeys.L["LinkSlottedKey"],
-                desc = WarheadKeys.L["LinkSlottedKeyDesc"],
-                get = function(info,val) return WarheadKeysDB.config.EnableLinkSlottedKey end,
-                set = function(info,val) WarheadKeysDB.config.EnableLinkSlottedKey = val end,
-                width = "full"
-            },
-            enableChatLink = {
-                type = "toggle",
-                name = WarheadKeys.L["ChatLink"],
-                desc = WarheadKeys.L["ChatLinkDesc"],
-                get = function(info,val) return WarheadKeysDB.config.EnableChatLink end,
-                set = function(info,val) WarheadKeysDB.config.EnableChatLink = val end,
-                width = "full"
-            },
-            enableChatLinkInstance = {
-                type = "toggle",
-                name = WarheadKeys.L["ChatLinkInstance"],
-                desc = WarheadKeys.L["ChatLinkInstanceDesc"],
-                get = function(info,val) return WarheadKeysDB.config.EnableChatLinkInstance end,
-                set = function(info,val) WarheadKeysDB.config.EnableChatLinkInstance = val end,
-                width = "full"
-            },
             -- resetbesttimes = {
             --     type = "execute",
             --     name = WarheadKeys.L["DeleteBestTimes"],
@@ -143,14 +119,6 @@ function WarheadKeys:OnEnable()
     self:RegisterEvent("CHALLENGE_MODE_START")
     self:RegisterEvent("CHALLENGE_MODE_COMPLETED")
     self:RegisterEvent("CHALLENGE_MODE_RESET")
-    self:RegisterEvent("BAG_UPDATE", "FillKeysCache")
-    self:RegisterEvent("CHAT_MSG_PARTY", "PrintCacheToChat")
-    self:RegisterEvent("CHAT_MSG_PARTY_LEADER", "PrintCacheToChat")
-    self:RegisterEvent("CHAT_MSG_RAID", "PrintCacheToChat")
-    self:RegisterEvent("CHAT_MSG_RAID_LEADER", "PrintCacheToChat")
-    self:RegisterEvent("CHAT_MSG_GUILD", "PrintCacheToChat")
-    self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "CheckKeystoneInstance")
-    self:RegisterEvent("CHALLENGE_MODE_KEYSTONE_SLOTTED", "OnSlottedKeystone")
 
     self:RegisterChatCommand("mpt", "CMTimerChatCommand")
 end
@@ -178,8 +146,6 @@ end
 
 function WarheadKeys:PLAYER_ENTERING_WORLD()
     WarheadKeysCMTimer:ReStart()
-
-    self:FillKeysCache()
 end
 
 function WarheadKeys:CancelCMTimer()
@@ -192,124 +158,7 @@ end
 function WarheadKeys:CMTimerChatCommand(input)
     if input == "toggle" then
         WarheadKeysCMTimer:ToggleFrame()
-    elseif input == "check" then
-        self:FillKeysCache()
-        self:CheckKeystoneInstance()
     else
         self:Print("/mpt toggle: " .. WarheadKeys.L["ToggleCommandText"])
     end
-end
-
-function WarheadKeys:FillKeysCache()
-    local cacheItemLink = WarheadKeysDB.KeystoneCache[SelfName]
-
-    for bag = 0, NUM_BAG_SLOTS do
-        local itemLink = self:GetKeyLink(bag)
-
-        if itemLink ~= nil then
-            if itemLink ~= cacheItemLink then
-                WarheadKeysDB.KeystoneCache[SelfName] = itemLink
-                self:PrintMessageToChat("Найден новый ключ: "..itemLink)
-            end
-
-            return
-        end
-    end
-
-    -- cacheItemLink = WarheadKeysDB.KeystoneCache[SelfName]
-
-    -- if (cacheItemLink ~= nil) then
-    --     print("|cFFFF0000[WH.KeysCache]:|r Найден старый ключ в кеше: "..cacheItemLink..". Удаляем его, чтобы не мешал")
-    --     WarheadKeysDB.KeystoneCache[SelfName] = nil
-    -- end
-end
-
-function WarheadKeys:GetKeyLink(bagSlot)
-    local numSlots = GetContainerNumSlots(bagSlot)
-
-    for slot = 1, numSlots do
-        if (GetContainerItemID(bagSlot, slot) == WH_ITEM_ID_KEYSTONE) then
-            return GetContainerItemLink(bagSlot, slot)
-        end
-    end
-
-    return nil
-end
-
-function WarheadKeys:ParseKeystoneLink(itemLink)
-    if itemLink == nil then
-        return "", 0
-    end
-
-    local map, level, name = string.match(itemLink, "|Hkeystone:(%d+):(%d+):.-|h(.-)|h")
-    name = C_ChallengeMode.GetMapInfo(map)
-    return name, level
-end
-
-function WarheadKeys:CheckKeystoneInstance(...)
-    if WarheadKeysDB.config.EnableChatLinkInstance == false then
-        return
-    end
-
-    local instanceName, instanceType, _, _, maxPlayers, _, _, _, _, _ = GetInstanceInfo()
-
-    if instanceType ~= "party" or maxPlayers ~= 5 then
-        return
-    end
-
-    for character, keystoneLink in pairs(WarheadKeysDB.KeystoneCache) do
-        local keyName, _ = self:ParseKeystoneLink(keystoneLink)
-
-        if keyName == instanceName then
-            self:PrintMessageToChat(string.format("Найден ключ для этого подземелья. Персонаж: %s. Ключ: %s", character, keystoneLink))
-        end
-    end
-end
-
-function WarheadKeys:PrintCacheToChat(event, msg)
-    if string.find(msg, "!keys") == nil or not WarheadKeysDB.config.EnableChatLink then
-        return
-    end
-
-    local isPrintAll = msg == "!keys all"
-    local sendChannelType = "PARTY"
-
-    if event == "CHAT_MSG_RAID" or event == "CHAT_MSG_RAID_LEADER" then
-        sendChannelType = "RAID"
-    elseif event == "CHAT_MSG_GUILD" then
-        sendChannelType = "GUILD"
-    end
-
-    if isPrintAll then
-        for character, keystoneLink in pairs(WarheadKeysDB.KeystoneCache) do
-            local text = string.format("%s: %s", character, keystoneLink)
-            SendChatMessage(text, sendChannelType)
-        end
-    else
-        local thisKeystone = WarheadKeysDB.KeystoneCache[SelfName]
-
-        if thisKeystone ~= nil then
-            SendChatMessage(thisKeystone, sendChannelType)
-        end
-    end
-end
-
-function WarheadKeys:PrintMessageToChat(message)
-    if IsInGroup() then
-        SendChatMessage(message, "PARTY")
-        return
-    end
-
-    print("|cFFFF0000[WH.Keys]:|r "..message)
-end
-
-function WarheadKeys:OnSlottedKeystone()
-    if not WarheadKeysDB.config.EnableLinkSlottedKey then
-        return
-    end
-
-    local _, _, keystoneLevel = C_ChallengeMode.GetSlottedKeystoneInfo()
-    local zoneName = GetInstanceInfo()
-
-    self:PrintMessageToChat(string.format("Подготовлен ключ к запуску. %s. Уровень: %u", zoneName, keystoneLevel))
 end

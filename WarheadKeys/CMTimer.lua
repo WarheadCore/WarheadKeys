@@ -41,7 +41,7 @@ function WarheadKeysCMTimer:Init()
     WarheadKeysCMTimer.lastKill = {};
 
     WarheadKeysCMTimer.frame = CreateFrame("Frame", "CmTimer", UIParent);
-    WarheadKeysCMTimer.frame:SetPoint(WarheadKeysDB.pos.relativePoint,WarheadKeysDB.pos.left,WarheadKeysDB.pos.top)
+    WarheadKeysCMTimer.frame:SetPoint(WarheadKeysDB.pos.relativePoint, WarheadKeysDB.pos.left, WarheadKeysDB.pos.top)
     WarheadKeysCMTimer.frame:EnableMouse(true)
     WarheadKeysCMTimer.frame:RegisterForDrag("LeftButton")
     WarheadKeysCMTimer.frame:SetScript("OnDragStart", WarheadKeysCMTimer.frame.StartMoving)
@@ -50,7 +50,6 @@ function WarheadKeysCMTimer:Init()
     WarheadKeysCMTimer.frame:SetWidth(100);
     WarheadKeysCMTimer.frame:SetHeight(100);
     WarheadKeysCMTimer.frameToggle = false
-
 
     WarheadKeysCMTimer.eventFrame = CreateFrame("Frame")
     WarheadKeysCMTimer.eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
