@@ -118,13 +118,14 @@ end
 function WarheadKeys:OnEnable()
     self:RegisterEvent("CHALLENGE_MODE_START")
     self:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-    self:RegisterEvent("CHALLENGE_MODE_RESET")
+    self:RegisterEvent("CHALLENGE_MODE_RESET", "OnReset")
+    self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "OnRestart")
 
     self:RegisterChatCommand("mpt", "CMTimerChatCommand")
 end
 
 function WarheadKeys:CHALLENGE_MODE_START()
-    WarheadKeysCMTimer:OnStart();
+    WarheadKeysCMTimer:OnStart()
 end
 
 function WarheadKeys:StartCMTimer()
@@ -133,11 +134,15 @@ function WarheadKeys:StartCMTimer()
 end
 
 function WarheadKeys:CHALLENGE_MODE_COMPLETED()
-    WarheadKeysCMTimer:OnComplete();
+    WarheadKeysCMTimer:OnComplete()
 end
 
-function WarheadKeys:CHALLENGE_MODE_RESET()
-    WarheadKeysCMTimer:OnReset();
+function WarheadKeys:OnReset()
+    WarheadKeysCMTimer:OnReset()
+end
+
+function WarheadKeys:OnRestart()
+    WarheadKeysCMTimer:ReStart()
 end
 
 function WarheadKeys:OnCMTimerTick()
@@ -158,6 +163,10 @@ end
 function WarheadKeys:CMTimerChatCommand(input)
     if input == "toggle" then
         WarheadKeysCMTimer:ToggleFrame()
+    elseif input == "restart" then
+        WarheadKeysCMTimer:ReStart()
+    elseif input == "debug" then
+        WarheadKeysCMTimer:DebugPrint()
     else
         self:Print("/mpt toggle: " .. WarheadKeys.L["ToggleCommandText"])
     end

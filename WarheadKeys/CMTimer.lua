@@ -10,7 +10,6 @@ local function SendWHMessageToChat(message)
     SendChatMessage(("WH: %s"):format(message), sendChannelType)
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 local surrenderedSoul
 function WarheadKeysCMTimer:Init()
     if not WarheadKeysDB.pos then
@@ -94,9 +93,10 @@ function WarheadKeysCMTimer:Init()
     GameTooltip:HookScript("OnTooltipSetUnit", function(self)
         WarheadKeysCMTimer:OnTooltipSetUnit(self)
     end)
+
+    self:ReStart()
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:OnTooltipSetUnit(el)
     if not WarheadKeysDB.config.progressTooltip then
         return
@@ -145,7 +145,6 @@ function WarheadKeysCMTimer:OnTooltipSetUnit(el)
     end
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:OnPartyKill(destGUID)
     local _, _, difficulty, _, _, _, _, _ = GetInstanceInfo();
     if difficulty ~= 8 or WarheadKeysCMTimer.started == false or WarheadKeysCMTimer.isCompleted then
@@ -167,7 +166,6 @@ function WarheadKeysCMTimer:OnPartyKill(destGUID)
     end
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:OnCriteriaUpdate()
     local _, _, difficulty, _, _, _, _, _ = GetInstanceInfo();
     if difficulty ~= 8 or WarheadKeysCMTimer.started == false or WarheadKeysCMTimer.isCompleted then
@@ -208,7 +206,6 @@ function WarheadKeysCMTimer:OnCriteriaUpdate()
     end
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:UpdateProgressValue(npcID, value)
     if not WarheadKeysDB.npcProgress then
         WarheadKeysDB.npcProgress = {}
@@ -231,7 +228,6 @@ function WarheadKeysCMTimer:UpdateProgressValue(npcID, value)
     end
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:GetProgressValue(npcID)
     if not WarheadKeysDB.npcProgress then
         return
@@ -251,7 +247,6 @@ function WarheadKeysCMTimer:GetProgressValue(npcID)
     return value
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:ToggleFrame()
     if WarheadKeysCMTimer.frameToggle then
         WarheadKeysCMTimer.frame:SetMovable(false)
@@ -289,7 +284,6 @@ function WarheadKeysCMTimer:ToggleFrame()
     end
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:OnComplete()
     if not WarheadKeysDB.bestTimes[WarheadKeysDB.currentRun.currentZoneID]["_complete"] or WarheadKeysDB.currentRun.time < WarheadKeysDB.bestTimes[WarheadKeysDB.currentRun.currentZoneID]["_complete"] then
         WarheadKeysDB.bestTimes[WarheadKeysDB.currentRun.currentZoneID]["_complete"] = WarheadKeysDB.currentRun.time
@@ -307,16 +301,15 @@ function WarheadKeysCMTimer:OnComplete()
         SendWHMessageToChat(text)
     end
 
-    ObjectiveTrackerFrame:Show();
-    WarheadKeysCMTimer.isCompleted = true;
-    WarheadKeysCMTimer.frame:Hide();
-    ObjectiveTrackerFrame:Show();
+    ObjectiveTrackerFrame:Show()
+    WarheadKeysCMTimer.isCompleted = true
+    WarheadKeysCMTimer.frame:Hide()
+    ObjectiveTrackerFrame:Show()
     WarheadKeysCMTimer:HideObjectivesFrames()
 
     WarheadKeysDB.currentRun = {}
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:OnStart()
     WarheadKeysDB.currentRun = {}
 
@@ -328,7 +321,6 @@ function WarheadKeysCMTimer:OnStart()
     WarheadKeys:StartCMTimer()
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:OnReset()
     WarheadKeysCMTimer.frame:Hide();
     ObjectiveTrackerFrame:Show();
@@ -341,7 +333,6 @@ function WarheadKeysCMTimer:OnReset()
     WarheadKeysDB.currentRun = {}
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:HideObjectivesFrames()
     if WarheadKeysCMTimer.frames.objectives then
         for key, _ in pairs(WarheadKeysCMTimer.frames.objectives) do
@@ -350,12 +341,16 @@ function WarheadKeysCMTimer:HideObjectivesFrames()
     end
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:ReStart()
     local _, _, difficulty, _, _, _, _, _ = GetInstanceInfo();
+
+    if difficulty ~= 8 then
+        return
+    end
+
     local _, timeCM = GetWorldElapsedTime(1);
 
-    if difficulty == 8 and timeCM > 0 then
+    if timeCM > 0 then
         WarheadKeysCMTimer.started = true;
         WarheadKeysCMTimer.lastKill = {};
 
@@ -377,10 +372,8 @@ function WarheadKeysCMTimer:ReStart()
     WarheadKeysCMTimer.lastKill = {};
     WarheadKeysCMTimer.isCompleted = false
     WarheadKeysDB.currentRun = {}
-    return
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:OnPlayerDeath()
     local _, _, difficulty, _, _, _, _, _ = GetInstanceInfo();
     local _, timeCM = GetWorldElapsedTime(1);
@@ -400,25 +393,24 @@ function WarheadKeysCMTimer:OnPlayerDeath()
     WarheadKeysDB.currentRun.death = WarheadKeysDB.currentRun.death + 1
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:Draw()
     local _, _, difficulty, _, _, _, _, currentZoneID = GetInstanceInfo();
 
     if difficulty ~= 8 then
-        WarheadKeysCMTimer.frame:Hide();
-        ObjectiveTrackerFrame:Show();
+        WarheadKeysCMTimer.frame:Hide()
+        ObjectiveTrackerFrame:Show()
         return
     end
 
     if not WarheadKeysCMTimer.isCompleted then
-        ObjectiveTrackerFrame:Hide();
+        ObjectiveTrackerFrame:Hide()
     end
 
     if not WarheadKeysCMTimer.started and not WarheadKeysCMTimer.reset and WarheadKeysCMTimer.timerStarted then
         WarheadKeys:CancelCMTimer()
         WarheadKeysCMTimer.timerStarted = false
-        WarheadKeysCMTimer.frame:Hide();
-        ObjectiveTrackerFrame:Show();
+        WarheadKeysCMTimer.frame:Hide()
+        ObjectiveTrackerFrame:Show()
         return
     end
 
@@ -426,10 +418,10 @@ function WarheadKeysCMTimer:Draw()
         WarheadKeysCMTimer.reset = false
         WarheadKeysCMTimer.timerStarted = false
         WarheadKeysCMTimer.started = false
-        WarheadKeysCMTimer.lastKill = {};
+        WarheadKeysCMTimer.lastKill = {}
         WarheadKeys:CancelCMTimer()
-        WarheadKeysCMTimer.frame:Hide();
-        ObjectiveTrackerFrame:Show();
+        WarheadKeysCMTimer.frame:Hide()
+        ObjectiveTrackerFrame:Show()
         return
     end
 
@@ -441,10 +433,14 @@ function WarheadKeysCMTimer:Draw()
         return
     end
 
-    local cmLevel, affixes, empowered = C_ChallengeMode.GetActiveKeystoneInfo();
+    local cmLevel, affixes, empowered = C_ChallengeMode.GetActiveKeystoneInfo()
+
+    if cmLevel == 0 then
+        cmLevel = 2
+    end
 
     if not WarheadKeysCMTimer.isCompleted then
-        WarheadKeysCMTimer.frame:Show();
+        WarheadKeysCMTimer.frame:Show()
     end
 
     if not WarheadKeysDB.bestTimes[currentZoneID] then
@@ -455,7 +451,7 @@ function WarheadKeysCMTimer:Draw()
         WarheadKeysDB.bestTimes[currentZoneID]["l"..cmLevel] = {}
     end
 
-    if not WarheadKeysDB.currentRun.times  then
+    if not WarheadKeysDB.currentRun.times then
         WarheadKeysDB.currentRun.times = {}
     end
 
@@ -463,9 +459,23 @@ function WarheadKeysCMTimer:Draw()
         WarheadKeysDB.currentRun.death = 0
     end
 
-    local currentMapId = C_ChallengeMode.GetActiveChallengeMapID();
-    local zoneName, _, maxTime = C_ChallengeMode.GetMapInfo(currentMapId);
-    local bonus = C_ChallengeMode.GetPowerLevelDamageHealthMod(cmLevel);
+    local currentMapId = C_ChallengeMode.GetActiveChallengeMapID()
+
+    -- Fix for Uwow
+    if not currentMapId then
+        -- Око азшары
+        if currentZoneID == 1456 then
+            currentMapId = 197
+        end
+
+        -- Квартал звёзд
+        if currentZoneID == 1571 then
+            currentMapId = 210
+        end
+    end
+
+    local zoneName, _, maxTime = C_ChallengeMode.GetMapInfo(currentMapId)
+    local bonus = C_ChallengeMode.GetPowerLevelDamageHealthMod(cmLevel)
 
     -- Info
     WarheadKeysDB.currentRun.cmLevel = cmLevel
@@ -483,12 +493,13 @@ function WarheadKeysCMTimer:Draw()
 
     WarheadKeysCMTimer.frames.info.text:SetText("+" .. cmLevel .. " - " .. zoneName);
 
-    -- Tooltip
+    -- Main tooltip
     if not WarheadKeysCMTimer.frames.infos then
         local i = CreateFrame("Frame", nil, WarheadKeysCMTimer.frame)
         i:SetAllPoints()
         i.text = i:CreateFontString(nil, "BACKGROUND", "GameFontHighlight");
         i.text:SetPoint("TOPLEFT", 0, -18);
+
         WarheadKeysCMTimer.frames.infos = i
 
         local debuffOnEnter = function(self, motion)
@@ -506,7 +517,6 @@ function WarheadKeysCMTimer:Draw()
 
             GameTooltip:Show()
         end
-
 
         local debuffOnLeave = function(self, motion)
             GameTooltip:Hide()
@@ -528,13 +538,15 @@ function WarheadKeysCMTimer:Draw()
         txt = txt .. WarheadKeys.L["NoEmpowered"]
     end
 
-    for _, affixID in ipairs(affixes) do
-        local affixName, affixDesc, _ = C_ChallengeMode.GetAffixInfo(affixID);
-        txt = txt .. " - "..affixName
+    if affixes then
+        for _, affixID in ipairs(affixes) do
+            local affixName, affixDesc, _ = C_ChallengeMode.GetAffixInfo(affixID);
+            txt = txt .. " - "..affixName
 
-        table.insert(tooltip, affixName)
-        table.insert(tooltip, "|cFFFFFFFF" .. affixDesc)
-        table.insert(tooltip, "  ")
+            table.insert(tooltip, affixName)
+            table.insert(tooltip, "|cFFFFFFFF" .. affixDesc)
+            table.insert(tooltip, "  ")
+        end
     end
 
     WarheadKeysCMTimer.frames.infos.tooltip = tooltip;
@@ -543,7 +555,7 @@ function WarheadKeysCMTimer:Draw()
     -- Time
     local timeLeft = maxTime - timeCM;
     if timeLeft < 0 then
-        timeLeft = 0;
+        timeLeft = 0
     end
 
     if not WarheadKeysCMTimer.frames.time then
@@ -556,12 +568,12 @@ function WarheadKeysCMTimer:Draw()
         local t = CreateFrame("Frame", nil, WarheadKeysCMTimer.frame)
         t:SetAllPoints()
         t.text = t:CreateFontString(nil, "BACKGROUND", font);
-        t.text:SetPoint("TOPLEFT", 0, -40);
+        t.text:SetPoint("TOPLEFT", 0, -40)
 
         local t2 = CreateFrame("Frame", nil, WarheadKeysCMTimer.frame)
         t2:SetAllPoints()
         t2.text = t2:CreateFontString(nil, "BACKGROUND", "GameFontHighlight");
-        t2.text:SetPoint("TOPLEFT", 45, -42);
+        t2.text:SetPoint("TOPLEFT", 45, -42)
 
         WarheadKeysCMTimer.frames.time =
         {
@@ -583,17 +595,17 @@ function WarheadKeysCMTimer:Draw()
     WarheadKeysDB.currentRun.timeLeft = timeLeft
 
     -- Chest Timer
-    local threeChestTime = maxTime * 0.6;
-    local twoChestTime = maxTime * 0.8;
+    local threeChestTime = maxTime * 0.6
+    local twoChestTime = maxTime * 0.8
 
     local timeLeft3 = threeChestTime - timeCM;
     if timeLeft3 < 0 then
-        timeLeft3 = 0;
+        timeLeft3 = 0
     end
 
     local timeLeft2 = twoChestTime - timeCM;
     if timeLeft2 < 0 then
-        timeLeft2 = 0;
+        timeLeft2 = 0
     end
 
     WarheadKeysDB.currentRun.timeLeft3 = timeLeft3
@@ -636,10 +648,7 @@ function WarheadKeysCMTimer:Draw()
         WarheadKeysCMTimer.frames.chesttimer.label2.text:SetFontObject("GameFontDisable");
 
         if WarheadKeysDB.config.objectiveTimeInChat and WarheadKeysCMTimer.frames.chesttimer.time2:IsShown() then
-            local text = WarheadKeysDB.currentRun.zoneName.." +2: Не пройдено. Прошло времени: "..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.currentRun.time)
-
-            -- WarheadKeys:Print(text)
-            SendWHMessageToChat(text)
+            self:PrintLostTime(2)
         end
 
         WarheadKeysCMTimer.frames.chesttimer.time2:Hide()
@@ -657,10 +666,7 @@ function WarheadKeysCMTimer:Draw()
         WarheadKeysCMTimer.frames.chesttimer.label3.text:SetFontObject("GameFontDisable");
 
         if WarheadKeysDB.config.objectiveTimeInChat and WarheadKeysCMTimer.frames.chesttimer.time3:IsShown() then
-            local text = WarheadKeysDB.currentRun.zoneName.." +3: Не пройдено. Прошло времени: "..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.currentRun.time)
-
-            WarheadKeys:Print(text)
-            SendWHMessageToChat(text)
+            self:PrintLostTime(3)
         end
 
         WarheadKeysCMTimer.frames.chesttimer.time3:Hide()
@@ -673,7 +679,7 @@ function WarheadKeysCMTimer:Draw()
     end
 
     -- Objectives
-    local _, _, steps = C_Scenario.GetStepInfo();
+    local _, _, steps = C_Scenario.GetStepInfo()
 
     if not WarheadKeysCMTimer.frames.objectives then
         WarheadKeysCMTimer.frames.objectives = {}
@@ -715,7 +721,6 @@ function WarheadKeysCMTimer:Draw()
                     local text = name.." "..WarheadKeys.L["Completed"].." (+"..cmLevel.."). "..WarheadKeys.L["Time"]..": "..WarheadKeysCMTimer:FormatSeconds(timeCM)..". "..WarheadKeys.L["BestTime"]..": "
                     text = text..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.bestTimes[currentZoneID]["l"..cmLevel][i])
 
-                    -- WarheadKeys:Print(text)
                     SendWHMessageToChat(text)
                 end
             end
@@ -788,14 +793,12 @@ function WarheadKeysCMTimer:Draw()
     end
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:ResolveTime(seconds)
-    local min = math.floor(seconds/60);
-    local sec = seconds - (min * 60);
-    return min, sec;
+    local min = math.floor(seconds/60)
+    local sec = seconds - (min * 60)
+    return min, sec
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:FormatSeconds(seconds)
     local min, sec = WarheadKeysCMTimer:ResolveTime(seconds)
     if min < 10 then
@@ -809,7 +812,6 @@ function WarheadKeysCMTimer:FormatSeconds(seconds)
     return min .. ":" .. sec
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:OnFrameMouseDown()
     if IsModifiedClick("CHATLINK") then
         if not WarheadKeysDB.currentRun.time then
@@ -828,10 +830,17 @@ function WarheadKeysCMTimer:OnFrameMouseDown()
     end
 end
 
--- ---------------------------------------------------------------------------------------------------------------------
 function WarheadKeysCMTimer:resolveNpcID(guid)
     local targetType, _,_,_,_, npcID = strsplit("-", guid)
     if targetType == "Vehicle" or targetType == "Creature" and npcID then
         return tonumber(npcID)
     end
+end
+
+function WarheadKeysCMTimer:DebugPrint()
+
+end
+
+function WarheadKeysCMTimer:PrintLostTime(lootLevel)
+    SendWHMessageToChat("Время для лута +"..lootLevel.." закончилось. Прошло: "..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.currentRun.time))
 end
