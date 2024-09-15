@@ -440,7 +440,7 @@ function WarheadKeysCMTimer:Draw()
     local cmLevel, affixes, empowered = C_ChallengeMode.GetActiveKeystoneInfo()
 
     if cmLevel == 0 then
-        cmLevel = 2
+        cmLevel = 36
     end
 
     if not WarheadKeysCMTimer.isCompleted then
