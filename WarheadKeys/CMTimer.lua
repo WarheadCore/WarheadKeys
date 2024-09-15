@@ -535,14 +535,9 @@ function WarheadKeysCMTimer:Draw()
     table.insert(tooltip, "|cFFFFFFFF" .. "+"..bonus.."%");
     table.insert(tooltip, " ")
 
-    local txt = ""
-    if empowered then
-        txt = txt .. WarheadKeys.L["Empowered"]
-    else
-        txt = txt .. WarheadKeys.L["NoEmpowered"]
-    end
+    if empowered and affixes then
+        local txt = WarheadKeys.L["Empowered"]
 
-    if affixes then
         for _, affixID in ipairs(affixes) do
             local affixName, affixDesc, _ = C_ChallengeMode.GetAffixInfo(affixID);
             txt = txt .. " - "..affixName
@@ -842,7 +837,6 @@ function WarheadKeysCMTimer:resolveNpcID(guid)
 end
 
 function WarheadKeysCMTimer:DebugPrint()
-
 end
 
 function WarheadKeysCMTimer:PrintLostTime(lootLevel)
