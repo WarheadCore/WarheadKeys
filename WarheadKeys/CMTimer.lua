@@ -294,10 +294,14 @@ function WarheadKeysCMTimer:OnComplete()
     end
 
     if WarheadKeysDB.config.objectiveTimeInChat then
-        local text = WarheadKeysDB.currentRun.zoneName.." +"..WarheadKeysDB.currentRun.cmLevel.." "..WarheadKeys.L["Completed"].."! "..WarheadKeys.L["Time"]..": "..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.currentRun.time)..". "..WarheadKeys.L["BestTime"]..": "
-        text = text..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.bestTimes[WarheadKeysDB.currentRun.currentZoneID]["l"..WarheadKeysDB.currentRun.cmLevel]["_complete"])
+        -- local text = WarheadKeysDB.currentRun.zoneName.." +"..WarheadKeysDB.currentRun.cmLevel.." "..WarheadKeys.L["Completed"].."! "..WarheadKeys.L["Time"]..": "..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.currentRun.time)..". "..WarheadKeys.L["BestTime"]..": "
+        -- text = text..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.bestTimes[WarheadKeysDB.currentRun.currentZoneID]["l"..WarheadKeysDB.currentRun.cmLevel]["_complete"])
 
-        -- WarheadKeys:Print(text)
+        local _, _, _, _, keystoneUpgradeLevel = C_ChallengeMode.GetCompletionInfo()
+        keystoneUpgradeLevel = keystoneUpgradeLevel or 0
+
+        local text = WarheadKeysDB.currentRun.zoneName.." ("..WarheadKeysDB.currentRun.cmLevel..") закрыт. Изменение уровня: "..keystoneUpgradeLevel..". Потраченное время: "..WarheadKeysCMTimer:FormatSeconds(WarheadKeysDB.currentRun.time)
+
         SendWHMessageToChat(text)
     end
 
