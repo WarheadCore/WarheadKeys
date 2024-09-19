@@ -535,8 +535,10 @@ function WarheadKeysCMTimer:Draw()
     table.insert(tooltip, "|cFFFFFFFF" .. "+"..bonus.."%");
     table.insert(tooltip, " ")
 
-    if empowered and affixes then
-        local txt = WarheadKeys.L["Empowered"]
+    local txt
+
+    if affixes and empowered then
+        txt = WarheadKeys.L["Empowered"]
 
         for _, affixID in ipairs(affixes) do
             local affixName, affixDesc, _ = C_ChallengeMode.GetAffixInfo(affixID);
@@ -549,7 +551,10 @@ function WarheadKeysCMTimer:Draw()
     end
 
     WarheadKeysCMTimer.frames.infos.tooltip = tooltip;
-    WarheadKeysCMTimer.frames.infos.text:SetText(txt)
+
+    if txt then
+        WarheadKeysCMTimer.frames.infos.text:SetText(txt)
+    end
 
     -- Time
     local timeLeft = maxTime - timeCM;
